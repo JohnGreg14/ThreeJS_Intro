@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"> <!--character setting for anything on the web-->
+    <title> John Instancing Attempt </title> <!--Setting the name of the browser window/tab-->
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum scale=1.0"> <!--Instructions on the size and scaling of the page depending on device. Here set to screen width and not allowing the user to change the scale of the page-->
+    <link type="text/css" rel="stylesheet" href="main.css"> <!--Telling it what kind of resource you are linking to, in this case an external stylesheet with custom text/css-->   
+</head>
+<body>
+    <script src="D:/Documents/ThreeJS/js/three.js"> </script>> <!--Linking It to the three.js Directory-->
+
+    <script>
+    var camera, scene, renderer; //Creating new variables that will be used to layout the page
+
+    var mesh; //Creating a mesh variable for all the objects to mesh together - why now?
+    var amount = 100; //number of objects that I want on the page
+    var count = Math.pow( amount, 3); //cubing the number that is output from the amount variable
+    var cube; //Creating a mesh variable to be used later. Why is this being created now??
+    var obj = new THREE.Object3D(); //Creating a new variable which is going to be the duplicated object in the scene. Again, why now?
+
+    init(); //Using the initiate function to create the object in the scene-->
+    animate(); //custom animation
+
+    function init() { //Defining the initiate function? Dont really get this part
+
+        scene = new THREE.Scene(); //Defining the scene variable as a threejs scene
+
+        camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 ); //Using perspective camera? Just using the same camera as in the tutorial, not sure what else I could use and how
+       //NEED CAMERA POSITION LINE IN HERE??
+
+        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var material = new THREE.MeshBasicMaterial( { color: 0xE0E0E0 } );
+			cube = new THREE.Mesh( geometry, material );
+			scene.add( cube ); //Adding in my beautiful cube
+
+        mesh = new THREE.InstancedMesh( geometry, material, count ); //defining how to mesh all the multiple objects together 
+
+        
+    } ;
+
+    var renderer = new THREE.WebGLRenderer(); //Telling it to display renders through WebGL (basis for threeJS) Why isnt this within the init function?
+            renderer.setPixelRatio(window.devicePixelRatio); //Making sure it uses the pixel ratio of the viewing device
+			renderer.setSize( window.innerWidth, window.innerHeight ); //Resizing any output to the width and heigh of the device
+			document.body.appendChild( renderer.domElement ); //Not sure the purpose of this?
+
+
+    window.addEventListener( 'resize', onWindowResize, false ); 
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / windwow.innerHeight;
+        renderer.setsize( window.innerWidth, window.innerHeight );
+    } //Telling the browser what to do if the window is resized
+
+    function animate() {
+        requestAnimationFrame( animate ); //Updating the viewers frame as the page is refreshed (based on monitor refresh rate)
+        render();
+    }
+
+    function render() { //function to render the page based on the conditions below
+        if( mesh ) { //Setting up an if string to animate the cubes
+
+            var time = Date.now() * 0.001 //creating a number of seconds to be used in the animation (I think)
+
+            mesh.rotation.x = Math.sin( time/4 );
+            mesh.rotation.y = Math.sin( time/2 ); //Setting up x and y rotation speeds based off the numerical value output from the time variable
+
+            var i = 0; //setting a zero value for use within the array (I think)
+            var offset = amount / 2; //Using the amount variable (numerical value) to create an offset within the page. So the objects dont cross a certain boundary maybe?
+
+            for( var x= 0; x < amount; x ++) {
+                for( var y = 0; y < amount; y ++ ) { 
+							for ( var z = 0; z < amount; z ++ ) { //DO NOT FOLLOW ANY OF THIS 'IF' AND 'FOR' STRING - HELP!
+                                obj.position.set( offset - x, offset - y, offset - z); //making sure the objects stay within the offset boundary?
+                                obj.roation.y = ( Math.sin( x / 4 + time) + Math.sin( z / 4 + time ) ); //specifiing the y rotation as a function of sin
+                                obj.roation.z = obj.rotation.y * 2; //Setting the z rotation to twice the y rotation
+
+                                obj.updateMatrix(); //refreshing the local object
+
+                                mesh.setMatrixAt( i ++, obj.matrix ); //not sure the purpose of this
+            }
+
+        }
+    }
+    
+    mesh.instanceMatrix.needsUpdate = true; //Making sure it updates the mesh when the loop is completed
+
+        }
+
+        renderer.render( scene, camera ); //the final render of the scene
+    }
+
+    </script>
+
+
+</body>
+</html>
